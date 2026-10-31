@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="Finance.Finance.MainController"
+            stylesheets="@styles.css"
+            styleClass="main-root"
+            prefWidth="1280" prefHeight="800">
+
+  <!-- ═══════════  NARROW ICON SIDEBAR  ═══════════ -->
+  <left>
+    <VBox styleClass="sidebar" spacing="0">
+
+      <!-- Logo box -->
+      <VBox styleClass="sb-logo-box" alignment="CENTER">
+        <ImageView fitWidth="38" fitHeight="38" preserveRatio="true" smooth="true">
+          <image><Image url="@logo.png"/></image>
+        </ImageView>
+      </VBox>
+
+      <!-- Nav icons — only the 4 that have working pages -->
+      <VBox spacing="0" VBox.vgrow="ALWAYS">
+        <Button fx:id="navDashboard" text="⊞"
+                styleClass="nav-btn, nav-btn-active"
+                onAction="#showDashboard" focusTraversable="false">
+          <tooltip><Tooltip text="Dashboard"/></tooltip>
+        </Button>
+
+        <Button fx:id="navOverview" text="◉"
+                styleClass="nav-btn"
+                onAction="#showOverview" focusTraversable="false">
+          <tooltip><Tooltip text="Overview"/></tooltip>
+        </Button>
+
+        <Button fx:id="navExport" text="↑"
+                styleClass="nav-btn"
+                onAction="#showExport" focusTraversable="false">
+          <tooltip><Tooltip text="Export Reports"/></tooltip>
+        </Button>
+
+        <Button fx:id="navAnomalies" text="⚠"
+                styleClass="nav-btn"
+                onAction="#showAnomalies" focusTraversable="false">
+          <tooltip><Tooltip text="Anomalies"/></tooltip>
+        </Button>
+      </VBox>
+
+      <Region minHeight="12"/>
+    </VBox>
+  </left>
+
+  <!-- ═══════════  TOP-BAR + CONTENT  ═══════════ -->
+  <center>
+    <VBox>
+
+      <!-- TOP BAR -->
+      <HBox styleClass="topbar" alignment="CENTER_LEFT" spacing="14">
+        <padding><Insets left="22" right="16"/></padding>
+
+        <HBox alignment="CENTER_LEFT" spacing="10" HBox.hgrow="ALWAYS">
+          <ImageView fitWidth="30" fitHeight="30" preserveRatio="true" smooth="true">
+            <image><Image url="@logo.png"/></image>
+          </ImageView>
+          <VBox spacing="1">
+            <Label text="Pixel Pocket Finance Dashboard" styleClass="tb-brand"/>
+            <Label fx:id="topBarSubtitle"
+                   text="Welcome back, Admin • Administrator"
+                   styleClass="tb-sub"/>
+          </VBox>
+        </HBox>
+
+        <TextField fx:id="globalSearch" styleClass="tb-search"
+                   promptText="🔍  Search"/>
+
+        <HBox alignment="CENTER_LEFT" spacing="8">
+          <Label fx:id="avatarLabel" text="A" styleClass="tb-avatar"/>
+          <VBox spacing="1">
+            <Label fx:id="userNameLabel" text="System Admin"  styleClass="tb-uname"/>
+            <Label fx:id="userRoleLabel" text="ADMIN"         styleClass="tb-urole"/>
+          </VBox>
+          <Button text="Sign out" styleClass="btn-signout"
+                  onAction="#handleLogout"/>
+        </HBox>
+      </HBox>
+
+      <!-- PAGE STACK -->
+      <StackPane fx:id="contentArea" styleClass="content-bg" VBox.vgrow="ALWAYS">
+
+        <!-- ─────────── DASHBOARD ─────────── -->
+        <ScrollPane fx:id="dashboardPage" styleClass="page-scroll"
+                    fitToWidth="true" visible="true">
+          <VBox spacing="14">
+            <padding><Insets top="18" right="22" bottom="22" left="22"/></padding>
+
+            <HBox styleClass="filter-card" alignment="CENTER_LEFT" spacing="12">
+              <Label text="▼  Filters" styleClass="filter-hdr-lbl" HBox.hgrow="ALWAYS"/>
+              <Button text="⬆  Export Reports" styleClass="btn-outline"
+                      onAction="#showExport"/>
+            </HBox>
+
+            <VBox styleClass="filter-card" spacing="10">
+              <HBox spacing="12" alignment="CENTER_LEFT">
+                <VBox spacing="3">
+                  <Label text="Start Date"   styleClass="filter-col-lbl"/>
+                  <DatePicker fx:id="filterDateFrom" styleClass="filter-dp" promptText="dd/mm/yyyy"/>
+                </VBox>
+                <VBox spacing="3">
+                  <Label text="End Date"     styleClass="filter-col-lbl"/>
+                  <DatePicker fx:id="filterDateTo"   styleClass="filter-dp" promptText="dd/mm/yyyy"/>
+                </VBox>
+                <VBox spacing="3">
+                  <Label text="Customer"     styleClass="filter-col-lbl"/>
+                  <ComboBox fx:id="filterCustomer" styleClass="filter-cb"
+                            promptText="All customers" prefWidth="126"/>
+                </VBox>
+                <VBox spacing="3">
+                  <Label text="Category"     styleClass="filter-col-lbl"/>
+                  <ComboBox fx:id="filterCategory" styleClass="filter-cb"
+                            promptText="All categories" prefWidth="126"/>
+                </VBox>
+                <VBox spacing="3">
+                  <Label text="Order Status" styleClass="filter-col-lbl"/>
+                  <ComboBox styleClass="filter-cb" promptText="All statuses" prefWidth="110"/>
+                </VBox>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="⟳  Reset" styleClass="btn-outline" onAction="#resetFilters"/>
+              </HBox>
+              <Button text="Apply Filters" styleClass="btn-apply-wide"
+                      maxWidth="Infinity" onAction="#applyFilters"/>
+              <Label fx:id="filterErrorLabel" text="" styleClass="filter-err"/>
+            </VBox>
+
+            <HBox spacing="12">
+              <VBox styleClass="kpi-card" HBox.hgrow="ALWAYS" spacing="5">
+                <HBox alignment="CENTER_LEFT">
+                  <Label text="Total Sales" styleClass="kpi-lbl" HBox.hgrow="ALWAYS"/>
+                  <Label text="S" styleClass="kpi-badge"/>
+                </HBox>
+                <Label fx:id="kpiRevenue"    text="£0.00"    styleClass="kpi-val"/>
+                <Label fx:id="kpiRevenueSub" text="0 orders" styleClass="kpi-sub"/>
+              </VBox>
+              <VBox styleClass="kpi-card" HBox.hgrow="ALWAYS" spacing="5">
+                <HBox alignment="CENTER_LEFT">
+                  <Label text="Total Profit" styleClass="kpi-lbl" HBox.hgrow="ALWAYS"/>
+                  <Label text="P" styleClass="kpi-badge"/>
+                </HBox>
+                <Label fx:id="kpiNetIncome"    text="£0.00"       styleClass="kpi-val"/>
+                <Label fx:id="kpiNetIncomeSub" text="0.0% margin" styleClass="kpi-sub"/>
+              </VBox>
+              <VBox styleClass="kpi-card" HBox.hgrow="ALWAYS" spacing="5">
+                <HBox alignment="CENTER_LEFT">
+                  <Label text="Average Order Value" styleClass="kpi-lbl" HBox.hgrow="ALWAYS"/>
+                  <Label text="A" styleClass="kpi-badge"/>
+                </HBox>
+                <Label fx:id="kpiPending"    text="£0.00"              styleClass="kpi-val"/>
+                <Label fx:id="kpiPendingSub" text="Per completed order" styleClass="kpi-sub"/>
+              </VBox>
+            </HBox>
+
+            <HBox spacing="12">
+              <VBox styleClass="kpi-card" HBox.hgrow="ALWAYS" spacing="5">
+                <HBox alignment="CENTER_LEFT">
+                  <Label text="Outstanding Payments" styleClass="kpi-lbl" HBox.hgrow="ALWAYS"/>
+                  <Label text="O" styleClass="kpi-badge"/>
+                </HBox>
+                <Label fx:id="kpiPending2" text="£0.00"          styleClass="kpi-val"/>
+                <Label text="Pending collection"                   styleClass="kpi-sub"/>
+              </VBox>
+              <VBox styleClass="kpi-card" HBox.hgrow="ALWAYS" spacing="5">
+                <HBox alignment="CENTER_LEFT">
+                  <Label text="Total Refunds" styleClass="kpi-lbl" HBox.hgrow="ALWAYS"/>
+                  <Label text="R" styleClass="kpi-badge"/>
+                </HBox>
+                <Label fx:id="kpiRefunds"    text="£0.00"          styleClass="kpi-val"/>
+                <Label fx:id="kpiRefundsSub" text="Refunded orders" styleClass="kpi-sub"/>
+              </VBox>
+              <VBox styleClass="kpi-card" HBox.hgrow="ALWAYS" spacing="5">
+                <HBox alignment="CENTER_LEFT">
+                  <Label text="Tax Collected" styleClass="kpi-lbl" HBox.hgrow="ALWAYS"/>
+                  <Label text="T" styleClass="kpi-badge"/>
+                </HBox>
+                <Label fx:id="dashboardSubtitle" text="£0.00" styleClass="kpi-val"/>
+                <Label text="20% VAT"                          styleClass="kpi-sub"/>
+              </VBox>
+            </HBox>
+
+            <HBox spacing="14">
+              <VBox styleClass="white-card" HBox.hgrow="ALWAYS" spacing="10">
+                <HBox alignment="CENTER_LEFT">
+                  <Label text="Monthly Revenue" styleClass="card-ttl" HBox.hgrow="ALWAYS"/>
+                  <Button text="See all" styleClass="card-link"/>
+                </HBox>
+                <BarChart fx:id="revenueChart" legendVisible="false"
+                          prefHeight="220" VBox.vgrow="ALWAYS" animated="false">
+                  <xAxis><CategoryAxis/></xAxis>
+                  <yAxis><NumberAxis/></yAxis>
+                </BarChart>
+              </VBox>
+              <VBox styleClass="white-card" prefWidth="345" spacing="10">
+                <HBox alignment="CENTER_LEFT">
+                  <Label text="Recent Orders" styleClass="card-ttl" HBox.hgrow="ALWAYS"/>
+                  <Button text="See all" styleClass="card-link"/>
+                </HBox>
+                <TableView fx:id="ordersTable" prefHeight="220" VBox.vgrow="ALWAYS">
+                  <columns>
+                    <TableColumn fx:id="colOrderId"       text="#"        prefWidth="34"/>
+                    <TableColumn fx:id="colOrderCustomer" text="Customer" prefWidth="106"/>
+                    <TableColumn fx:id="colOrderDate"     text="Date"     prefWidth="84"/>
+                    <TableColumn fx:id="colOrderStatus"   text="Status"   prefWidth="76"/>
+                    <TableColumn fx:id="colOrderAmount"   text="Amount"   prefWidth="76"/>
+                  </columns>
+                </TableView>
+              </VBox>
+            </HBox>
+
+          </VBox>
+        </ScrollPane>
+
+        <!-- ─────────── OVERVIEW ─────────── -->
+        <ScrollPane fx:id="overviewPage" styleClass="page-scroll"
+                    fitToWidth="true" visible="false">
+          <fx:include fx:id="overviewContent" source="Overview.fxml"/>
+        </ScrollPane>
+
+        <!-- ─────────── EXPORT ─────────── -->
+        <ScrollPane fx:id="exportPage" styleClass="page-scroll"
+                    fitToWidth="true" visible="false">
+          <fx:include fx:id="exportContent" source="Export.fxml"/>
+        </ScrollPane>
+
+        <!-- ─────────── ANOMALIES ─────────── -->
+        <ScrollPane fx:id="anomaliesPage" styleClass="page-scroll"
+                    fitToWidth="true" visible="false">
+          <fx:include fx:id="anomaliesContent" source="Anomalies.fxml"/>
+        </ScrollPane>
+
+      </StackPane>
+    </VBox>
+  </center>
+
+</BorderPane>

@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="Database.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="0"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="3380"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><table title="anomaly_log" custom_title="0" dock_id="6" table="4,11:mainanomaly_log"/><dock_state state="000000ff00000000fd00000001000000020000038e000002f1fc0100000003fb000000160064006f0063006b00420072006f007700730065003101000000000000038e0000000000000000fb000000160064006f0063006b00420072006f007700730065003501000000000000038e0000000000000000fb000000160064006f0063006b00420072006f007700730065003601000000000000038e0000010b00ffffff0000038e0000000000000004000000040000000800000008fc00000000"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="anomaly_log" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort/><column_widths><column index="1" value="24"/><column index="2" value="115"/><column index="3" value="118"/><column index="4" value="283"/><column index="5" value="60"/><column index="6" value="83"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table></browse_table_settings></tab_browse><tab_sql><sql name="SQL 1">PRAGMA foreign_keys = ON;
+
+CREATE TABLE IF NOT EXISTS users (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    username    TEXT    NOT NULL UNIQUE,
+    password    TEXT    NOT NULL,           -- store hashed (e.g. BCrypt)
+    full_name   TEXT    NOT NULL,
+    email       TEXT    NOT NULL UNIQUE,
+    role        TEXT    NOT NULL CHECK(role IN ('ADMIN','FINANCE')),
+    is_active   INTEGER NOT NULL DEFAULT 1, -- 1 = active, 0 = inactive
+    created_at  TEXT    NOT NULL DEFAULT (datetime('now')),
+    last_login  TEXT
+);
+
+-- Seed demo users (passwords should be hashed in production)
+INSERT OR IGNORE INTO users (username, password, full_name, email, role, is_active)
+VALUES
+    ('admin',   'admin123',   'System Admin',    'admin@pixelpocket.com',   'ADMIN',   1),
+    ('finance', 'finance123', 'Finance Manager', 'finance@pixelpocket.com', 'FINANCE', 1),
+    ('viewer',  'viewer123',  'Read Only User',  'viewer@pixelpocket.com',  'VIEWER',  0); -- inactive / wrong role → denied
+
+
+CREATE TABLE IF NOT EXISTS categories (
+    id   INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT    NOT NULL UNIQUE
+);
+
+INSERT OR IGNORE INTO categories (name) VALUES
+    ('Electronics'),('Clothing'),('Books'),('Home &amp; Garden'),
+    ('Sports'),('Toys'),('Beauty'),('Automotive');
+
+
+CREATE TABLE IF NOT EXISTS customers (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    name       TEXT    NOT NULL,
+    email      TEXT    NOT NULL UNIQUE,
+    phone      TEXT,
+    created_at TEXT    NOT NULL DEFAULT (datetime('now'))
+);
+
+INSERT OR IGNORE INTO customers (name, email, phone) VALUES
+    ('Alice Johnson',  'alice@example.com',   '555-0101'),
+    ('Bob Smith',      'bob@example.com',     '555-0102'),
+    ('Carol White',    'carol@example.com',   '555-0103'),
+    ('David Brown',    'david@example.com',   '555-0104'),
+    ('Emma Davis',     'emma@example.com',    '555-0105'),
+    ('Frank Miller',   'frank@example.com',   '555-0106'),
+    ('Grace Wilson',   'grace@example.com',   '555-0107'),
+    ('Henry Moore',    'henry@example.com',   '555-0108');
+
+
+CREATE TABLE IF NOT EXISTS products (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    name        TEXT    NOT NULL,
+    category_id INTEGER NOT NULL REFERENCES categories(id),
+    cost_price  REAL    NOT NULL CHECK(cost_price &gt;= 0),
+    sale_price  REAL    NOT NULL CHECK(sale_price &gt;= 0),
+    stock       INTEGER NOT NULL DEFAULT 0,
+    created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+);
+
+INSERT OR IGNORE INTO products (name, category_id, cost_price, sale_price, stock) VALUES
+    ('Wireless Headphones',  1, 45.00,  89.99,  120),
+    ('Bluetooth Speaker',    1, 30.00,  59.99,   80),
+    ('Running Shoes',        2, 40.00,  79.99,  200),
+    ('Yoga Mat',             6, 12.00,  29.99,  150),
+    ('Python Programming',   3,  8.00,  24.99,  300),
+    ('Garden Hose',          4,  9.00,  19.99,  100),
+    ('Tennis Racket',        5, 25.00,  54.99,   60),
+    ('Face Cream SPF50',     7, 10.00,  34.99,  250),
+    ('Car Phone Holder',     8,  5.00,  14.99,  400),
+    ('Smart Watch',          1, 80.00, 199.99,   50);
+
+
+CREATE TABLE IF NOT EXISTS orders (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    customer_id    INTEGER NOT NULL REFERENCES customers(id),
+    order_date     TEXT    NOT NULL DEFAULT (datetime('now')),
+    status         TEXT    NOT NULL CHECK(status IN ('COMPLETED','PENDING','REFUNDED','CANCELLED')),
+    total_amount   REAL    NOT NULL DEFAULT 0,
+    notes          TEXT
+);
+
+CREATE TABLE IF NOT EXISTS order_items (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    order_id   INTEGER NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+    product_id INTEGER NOT NULL REFERENCES products(id),
+    quantity   INTEGER NOT NULL CHECK(quantity &gt; 0),
+    unit_price REAL    NOT NULL CHECK(unit_price &gt;= 0),
+    unit_cost  REAL    NOT NULL CHECK(unit_cost  &gt;= 0)
+);
+
+CREATE TABLE IF NOT EXISTS refunds (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    order_id     INTEGER NOT NULL REFERENCES orders(id),
+    refund_date  TEXT    NOT NULL DEFAULT (datetime('now')),
+    amount       REAL    NOT NULL CHECK(amount &gt;= 0),
+    reason       TEXT,
+    processed_by INTEGER REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS anomaly_log (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    detected_at  TEXT    NOT NULL DEFAULT (datetime('now')),
+    anomaly_type TEXT    NOT NULL, -- e.g. 'HIGH_REFUND_RATE', 'LOW_SALES'
+    description  TEXT    NOT NULL,
+    severity     TEXT    NOT NULL CHECK(severity IN ('LOW','MEDIUM','HIGH')),
+    is_resolved  INTEGER NOT NULL DEFAULT 0
+);
+
+INSERT OR IGNORE INTO orders (customer_id, order_date, status, total_amount) VALUES
+-- Jan 2025
+(1,'2025-01-05 10:00','COMPLETED', 179.98),
+(2,'2025-01-12 14:30','COMPLETED',  89.99),
+(3,'2025-01-18 09:15','REFUNDED',   59.99),
+(4,'2025-01-25 16:45','COMPLETED', 269.97),
+-- Feb 2025
+(5,'2025-02-03 11:00','COMPLETED', 139.98),
+(6,'2025-02-14 13:00','PENDING',    54.99),
+(1,'2025-02-20 15:30','COMPLETED', 199.99),
+(7,'2025-02-27 10:10','REFUNDED',   89.99),
+-- Mar 2025
+(2,'2025-03-02 09:00','COMPLETED', 349.96),
+(3,'2025-03-11 12:20','COMPLETED',  44.98),
+(8,'2025-03-19 17:00','COMPLETED', 199.99),
+(4,'2025-03-28 08:45','CANCELLED',  29.99),
+-- Apr 2025
+(5,'2025-04-04 10:30','COMPLETED', 259.97),
+(6,'2025-04-13 14:00','COMPLETED',  79.99),
+(7,'2025-04-21 11:45','REFUNDED',   34.99),
+(1,'2025-04-29 16:00','COMPLETED', 414.97),
+-- May 2025
+(2,'2025-05-07 09:30','COMPLETED', 119.98),
+(3,'2025-05-16 13:15','COMPLETED', 299.98),
+(4,'2025-05-23 10:00','PENDING',    54.99),
+(5,'2025-05-30 15:45','COMPLETED', 224.98),
+-- Jun 2025
+(6,'2025-06-05 11:00','COMPLETED', 189.98),
+(7,'2025-06-14 14:30','COMPLETED', 269.97),
+(8,'2025-06-22 09:15','REFUNDED',   89.99),
+(1,'2025-06-29 16:45','COMPLETED', 199.99);
+
+-- Order items matching above orders (sample subset)
+INSERT OR IGNORE INTO order_items (order_id, product_id, quantity, unit_price, unit_cost) VALUES
+(1,1,2, 89.99,45.00),(1,3,1, 79.99,40.00),
+(2,1,1, 89.99,45.00),
+(3,2,1, 59.99,30.00),
+(4,9,3, 14.99, 5.00),(4,10,1,199.99,80.00),
+(5,3,1, 79.99,40.00),(5,4,2, 29.99,12.00),
+(6,7,1, 54.99,25.00),
+(7,10,1,199.99,80.00),
+(8,1,1, 89.99,45.00),
+(9,1,2, 89.99,45.00),(9,10,1,199.99,80.00),
+(10,4,1,29.99,12.00),(10,9,1,14.99,5.00),
+(11,10,1,199.99,80.00),
+(12,4,1,29.99,12.00),
+(13,3,2,79.99,40.00),(13,9,2,14.99,5.00),
+(14,3,1,79.99,40.00),
+(15,8,1,34.99,10.00),
+(16,1,2,89.99,45.00),(16,10,1,199.99,80.00),(16,8,1,34.99,10.00),
+(17,5,2,24.99,8.00),(17,4,1,29.99,12.00),(17,9,4,14.99,5.00),
+(18,10,1,199.99,80.00),(18,3,1,79.99,40.00),(18,2,1,59.99,30.00),
+(19,7,1,54.99,25.00),
+(20,1,1,89.99,45.00),(20,10,1,199.99,80.00),
+(21,3,1,79.99,40.00),(21,2,1,59.99,30.00),(21,9,3,14.99,5.00),
+(22,1,2,89.99,45.00),(22,8,1,34.99,10.00),(22,3,1,79.99,40.00),
+(23,1,1,89.99,45.00),
+(24,10,1,199.99,80.00);
+
+-- Sample refunds
+INSERT OR IGNORE INTO refunds (order_id, refund_date, amount, reason, processed_by) VALUES
+(3, '2025-01-20',  59.99, 'Defective product',      1),
+(8, '2025-03-01',  89.99, 'Wrong item shipped',     1),
+(15,'2025-04-23',  34.99, 'Customer dissatisfied',  2),
+(23,'2025-06-24',  89.99, 'Item not as described',  1);
+
+-- Sample anomalies
+INSERT OR IGNORE INTO anomaly_log (anomaly_type, description, severity, is_resolved) VALUES
+('HIGH_REFUND_RATE', 'Refund rate exceeded 15% in January 2025', 'MEDIUM', 1),
+('LOW_SALES',        'Daily sales dropped below threshold on 2025-03-28', 'LOW', 1),
+('HIGH_REFUND_RATE', 'Product &quot;Wireless Headphones&quot; has 3 refunds this month', 'HIGH', 0);
+
+-- R3: Sales &amp; Income Summary
+CREATE VIEW IF NOT EXISTS v_sales_summary AS
+SELECT
+    strftime('%Y-%m', o.order_date)              AS month,
+    COUNT(DISTINCT o.id)                          AS total_orders,
+    SUM(CASE WHEN o.status = 'COMPLETED' THEN o.total_amount ELSE 0 END) AS total_revenue,
+    SUM(CASE WHEN o.status = 'REFUNDED'  THEN r.amount       ELSE 0 END) AS total_refunds,
+    SUM(CASE WHEN o.status = 'PENDING'   THEN o.total_amount ELSE 0 END) AS pending_payments,
+    SUM(CASE WHEN o.status = 'COMPLETED' THEN o.total_amount ELSE 0 END)
+      - COALESCE(SUM(CASE WHEN o.status = 'REFUNDED' THEN r.amount ELSE 0 END),0) AS net_income
+FROM orders o
+LEFT JOIN refunds r ON r.order_id = o.id
+GROUP BY strftime('%Y-%m', o.order_date);
+
+-- R4: Product Profit View
+CREATE VIEW IF NOT EXISTS v_product_profit AS
+SELECT
+    p.id,
+    p.name                                   AS product_name,
+    c.name                                   AS category,
+    p.cost_price,
+    p.sale_price,
+    (p.sale_price - p.cost_price)            AS profit_per_unit,
+    ROUND((p.sale_price - p.cost_price) / p.sale_price * 100, 2) AS margin_pct,
+    COALESCE(SUM(oi.quantity),0)             AS units_sold,
+    COALESCE(SUM(oi.quantity * (oi.unit_price - oi.unit_cost)),0) AS total_profit
+FROM products p
+JOIN categories c ON c.id = p.category_id
+LEFT JOIN order_items oi ON oi.product_id = p.id
+LEFT JOIN orders o ON o.id = oi.order_id AND o.status = 'COMPLETED'
+GROUP BY p.id;
+
+-- Dashboard KPI quick view
+CREATE VIEW IF NOT EXISTS v_dashboard_kpis AS
+SELECT
+    (SELECT COALESCE(SUM(total_amount),0) FROM orders WHERE status='COMPLETED') AS total_revenue,
+    (SELECT COALESCE(SUM(amount),0)       FROM refunds)                          AS total_refunds,
+    (SELECT COALESCE(SUM(total_amount),0) FROM orders WHERE status='PENDING')    AS pending_payments,
+    (SELECT COUNT(*) FROM orders WHERE status='COMPLETED')                        AS completed_orders,
+    (SELECT COUNT(*) FROM orders WHERE status='REFUNDED')                         AS refunded_orders,
+    (SELECT COUNT(*) FROM customers)                                               AS total_customers;</sql><current_tab id="0"/></tab_sql></sqlb_project>

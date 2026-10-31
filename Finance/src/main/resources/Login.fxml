@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+
+<!-- Login page — centred card on light grey bg.
+     "P" logo → Pixel Pocket title → Finance & Reporting System
+     FIX: field label is "Email Address" matching the query on email column -->
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           fx:controller="Finance.Finance.LoginController"
+           stylesheets="@styles.css"
+           styleClass="login-root"
+           prefWidth="860" prefHeight="560">
+
+  <VBox styleClass="login-card"
+        alignment="TOP_CENTER"
+        spacing="0"
+        StackPane.alignment="CENTER">
+    <padding><Insets top="38" right="42" bottom="38" left="42"/></padding>
+
+    <!-- Brand block -->
+    <VBox alignment="CENTER" spacing="8">
+      <StackPane styleClass="login-logo-box"
+                 minWidth="70" minHeight="70"
+                 maxWidth="70" maxHeight="70"
+                 alignment="CENTER">
+        <ImageView fitWidth="64" fitHeight="64" preserveRatio="true" smooth="true">
+          <image><Image url="@logo.png"/></image>
+        </ImageView>
+      </StackPane>
+      <Label text="Pixel Pocket"                    styleClass="login-app-name"/>
+      <Label text="Finance &amp; Reporting System"  styleClass="login-app-sub"/>
+      <Label text="Secure access for authorised personnel only"
+             styleClass="login-app-secure"/>
+    </VBox>
+
+    <Region minHeight="22"/>
+    <Separator maxWidth="Infinity"/>
+    <Region minHeight="22"/>
+
+    <!-- Sign-in block -->
+    <VBox spacing="4" alignment="TOP_LEFT">
+      <Label text="Sign In"                                            styleClass="login-form-title"/>
+      <Label text="Enter your credentials to access the dashboard"     styleClass="login-form-hint"/>
+    </VBox>
+
+    <Region minHeight="18"/>
+
+    <!-- Email field — label matches LoginController which queries on email column -->
+    <VBox spacing="6">
+      <Label text="Email Address" styleClass="lbl-field"/>
+      <TextField fx:id="usernameField"
+                 styleClass="inp-login"
+                 promptText="you@example.com"
+                 maxWidth="Infinity"/>
+    </VBox>
+
+    <Region minHeight="14"/>
+
+    <VBox spacing="6">
+      <Label text="Password" styleClass="lbl-field"/>
+      <PasswordField fx:id="passwordField"
+                     styleClass="inp-login"
+                     promptText="••••••••"
+                     maxWidth="Infinity"/>
+    </VBox>
+
+    <Region minHeight="6"/>
+    <Label fx:id="errorLabel" text="" styleClass="error-label"
+           wrapText="true" maxWidth="Infinity"/>
+    <Region minHeight="16"/>
+
+    <Button text="Sign In"
+            styleClass="btn-signin"
+            maxWidth="Infinity"
+            onAction="#handleLogin"/>
+
+    <Region minHeight="18"/>
+    <Label text="This system contains sensitive financial information. Unauthorised access is prohibited."
+           styleClass="login-disclaimer"
+           wrapText="true" maxWidth="300" alignment="CENTER"/>
+  </VBox>
+
+</StackPane>

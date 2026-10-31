@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="Finance.Finance.AnomalyController"
+      spacing="14">
+  <padding><Insets top="18" right="22" bottom="22" left="22"/></padding>
+
+  <!-- Header -->
+  <HBox alignment="CENTER_LEFT" spacing="12">
+    <ImageView fitWidth="28" fitHeight="28" preserveRatio="true" smooth="true">
+      <image><Image url="@logo.png"/></image>
+    </ImageView>
+    <VBox spacing="2" HBox.hgrow="ALWAYS">
+      <Label text="Anomaly Detection"                                styleClass="card-ttl"/>
+      <Label text="Automatic alerts for unusual financial patterns"  styleClass="tb-sub"/>
+    </VBox>
+    <Button text="⟳  Run Analysis" styleClass="btn-apply-wide"
+            onAction="#runAnalysis"/>
+  </HBox>
+
+  <Label fx:id="anomalyStatusLabel" text="" styleClass="error-label"/>
+  <Label fx:id="anomalyInfoLabel"   text="" styleClass="success-label"/>
+
+  <!-- KPI summary badges -->
+  <HBox spacing="12">
+    <VBox styleClass="kpi-card" HBox.hgrow="ALWAYS" spacing="5">
+      <Label text="OPEN ANOMALIES"      styleClass="kpi-lbl"/>
+      <Label fx:id="badgeOpen"         text="0" styleClass="kpi-val"/>
+      <Label text="Requires attention"   styleClass="kpi-sub"/>
+    </VBox>
+    <VBox styleClass="kpi-card" HBox.hgrow="ALWAYS" spacing="5">
+      <Label text="RESOLVED"            styleClass="kpi-lbl"/>
+      <Label fx:id="badgeResolved"     text="0" styleClass="kpi-val"/>
+      <Label text="Closed anomalies"    styleClass="kpi-sub"/>
+    </VBox>
+    <VBox styleClass="kpi-card" HBox.hgrow="ALWAYS" spacing="5">
+      <Label text="HIGH SEVERITY"       styleClass="kpi-lbl"/>
+      <Label fx:id="badgeHigh"         text="0" styleClass="kpi-val"/>
+      <Label text="Critical flags"      styleClass="kpi-sub"/>
+    </VBox>
+  </HBox>
+
+  <!-- Anomaly log table -->
+  <VBox styleClass="white-card" spacing="12" VBox.vgrow="ALWAYS">
+    <HBox alignment="CENTER_LEFT">
+      <Label text="ANOMALY LOG" styleClass="sec-lbl" HBox.hgrow="ALWAYS"/>
+      <Button text="Mark Selected as Resolved"
+              styleClass="btn-outline"
+              onAction="#markResolved"/>
+    </HBox>
+    <TableView fx:id="anomalyTable" prefHeight="380" VBox.vgrow="ALWAYS">
+      <columns>
+        <TableColumn fx:id="colAnoId"       text="#"           prefWidth="42"/>
+        <TableColumn fx:id="colAnoDate"     text="Detected"    prefWidth="146"/>
+        <TableColumn fx:id="colAnoType"     text="Type"        prefWidth="154"/>
+        <TableColumn fx:id="colAnoDesc"     text="Description" prefWidth="340"/>
+        <TableColumn fx:id="colAnoSeverity" text="Severity"    prefWidth="86"/>
+        <TableColumn fx:id="colAnoStatus"   text="Status"      prefWidth="86"/>
+      </columns>
+    </TableView>
+  </VBox>
+
+</VBox>

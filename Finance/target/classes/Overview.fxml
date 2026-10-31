@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+
+<!-- Overview page — matches screenshot:
+     Row 1: Statistics card (pie + profit table) | Recent Activities card
+     Row 2: LineChart (Overview) | Active percentage card -->
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="Finance.Finance.OverviewController"
+      spacing="14">
+  <padding><Insets top="18" right="22" bottom="22" left="22"/></padding>
+
+  <!-- Header -->
+  <HBox alignment="CENTER_LEFT" spacing="12">
+    <ImageView fitWidth="28" fitHeight="28" preserveRatio="true" smooth="true">
+      <image><Image url="@logo.png"/></image>
+    </ImageView>
+    <VBox spacing="2" HBox.hgrow="ALWAYS">
+      <Label text="Analytics Overview"                         styleClass="card-ttl"/>
+      <Label text="System-wide financial performance summary"  styleClass="tb-sub"/>
+    </VBox>
+    <Button text="⟳  Refresh" styleClass="btn-outline" onAction="#refreshOverview"/>
+  </HBox>
+
+  <Label fx:id="overviewErrorLabel" text="" styleClass="error-label"/>
+
+  <!-- ── Row 1: Statistics + Recent Activities ── -->
+  <HBox spacing="14">
+
+    <!-- Statistics: pie chart + profit table -->
+    <VBox styleClass="white-card" HBox.hgrow="ALWAYS" spacing="12">
+      <HBox alignment="CENTER_LEFT">
+        <Label text="Statistics" styleClass="card-ttl" HBox.hgrow="ALWAYS"/>
+        <Button text="View all"  styleClass="card-link"/>
+      </HBox>
+
+      <HBox spacing="16" alignment="TOP_LEFT">
+        <!-- Pie chart + top product label -->
+        <VBox alignment="CENTER" spacing="4" minWidth="190">
+          <PieChart fx:id="categoryPieChart"
+                    legendVisible="false"
+                    labelsVisible="false"
+                    prefWidth="180" prefHeight="180"
+                    minWidth="180"  minHeight="180"/>
+          <Label fx:id="ovTopProduct" text="—"
+                 style="-fx-font-size:15px; -fx-font-weight:bold; -fx-text-fill:#111827; -fx-alignment:center;"/>
+          <Label text="Total" styleClass="kpi-sub"/>
+        </VBox>
+
+        <!-- Profit table -->
+        <VBox HBox.hgrow="ALWAYS" spacing="4">
+          <TableView fx:id="profitTable" prefHeight="210" VBox.vgrow="ALWAYS">
+            <columns>
+              <TableColumn fx:id="colProdName"     text="Product"     prefWidth="138"/>
+              <TableColumn fx:id="colProdCategory" text="Category"    prefWidth="90"/>
+              <TableColumn fx:id="colProdCost"     text="Cost"        prefWidth="68"/>
+              <TableColumn fx:id="colProdPrice"    text="Price"       prefWidth="68"/>
+              <TableColumn fx:id="colProdProfit"   text="Profit/Unit" prefWidth="82"/>
+              <TableColumn fx:id="colProdMargin"   text="Margin"      prefWidth="64"/>
+              <TableColumn fx:id="colProdSold"     text="Sold"        prefWidth="46"/>
+              <TableColumn fx:id="colProdTotal"    text="Total"       prefWidth="80"/>
+            </columns>
+          </TableView>
+          <Label fx:id="profitErrorLabel" text="" styleClass="error-label"/>
+        </VBox>
+      </HBox>
+    </VBox>
+
+    <!-- Recent Activities — FIX: currency changed from ₹ to £ -->
+    <VBox styleClass="white-card" prefWidth="260" spacing="10">
+      <HBox alignment="CENTER_LEFT">
+        <Label text="Recent Activities" styleClass="card-ttl" HBox.hgrow="ALWAYS"/>
+        <Button text="See All" styleClass="card-link"/>
+      </HBox>
+      <VBox spacing="0">
+        <HBox alignment="CENTER_LEFT" spacing="8"
+              style="-fx-padding:8 0 8 0; -fx-border-color: transparent transparent #f0f2f5 transparent; -fx-border-width:0 0 1 0;">
+          <Label text="Netflix Standard Plan" HBox.hgrow="ALWAYS"
+                 style="-fx-font-size:12px; -fx-text-fill:#111827;"/>
+          <Label text="£1,350"
+                 style="-fx-font-size:12px; -fx-font-weight:bold; -fx-text-fill:#111827;"/>
+        </HBox>
+        <HBox alignment="CENTER_LEFT" spacing="8"
+              style="-fx-padding:8 0 8 0; -fx-border-color: transparent transparent #f0f2f5 transparent; -fx-border-width:0 0 1 0;">
+          <Label text="Online Shopping" HBox.hgrow="ALWAYS"
+                 style="-fx-font-size:12px; -fx-text-fill:#111827;"/>
+          <Label text="£5,850"
+                 style="-fx-font-size:12px; -fx-font-weight:bold; -fx-text-fill:#111827;"/>
+        </HBox>
+        <HBox alignment="CENTER_LEFT" spacing="8"
+              style="-fx-padding:8 0 8 0; -fx-border-color: transparent transparent #f0f2f5 transparent; -fx-border-width:0 0 1 0;">
+          <Label text="Wedding Photography" HBox.hgrow="ALWAYS"
+                 style="-fx-font-size:12px; -fx-text-fill:#111827;"/>
+          <Label text="£41,200"
+                 style="-fx-font-size:12px; -fx-font-weight:bold; -fx-text-fill:#111827;"/>
+        </HBox>
+        <HBox alignment="CENTER_LEFT" spacing="8"
+              style="-fx-padding:8 0 8 0;">
+          <Label text="Hotstar Premium Plan" HBox.hgrow="ALWAYS"
+                 style="-fx-font-size:12px; -fx-text-fill:#111827;"/>
+          <Label text="£750"
+                 style="-fx-font-size:12px; -fx-font-weight:bold; -fx-text-fill:#111827;"/>
+        </HBox>
+      </VBox>
+    </VBox>
+
+  </HBox>
+
+  <!-- ── Row 2: Line chart + Active percentage card ── -->
+  <HBox spacing="14">
+
+    <!-- Trend line chart -->
+    <VBox styleClass="white-card" HBox.hgrow="ALWAYS" spacing="10">
+      <HBox alignment="CENTER_LEFT">
+        <Label text="Overview" styleClass="card-ttl" HBox.hgrow="ALWAYS"/>
+        <Button text="Monthly ▾" styleClass="btn-outline"/>
+      </HBox>
+      <LineChart fx:id="trendLineChart" legendVisible="false"
+                 prefHeight="180" VBox.vgrow="ALWAYS" animated="false"
+                 createSymbols="false">
+        <xAxis><CategoryAxis/></xAxis>
+        <yAxis><NumberAxis/></yAxis>
+      </LineChart>
+    </VBox>
+
+    <!-- Active percentage card -->
+    <VBox styleClass="white-card" prefWidth="260" spacing="14">
+      <Label text="Active percentage" styleClass="card-ttl"/>
+
+      <VBox spacing="3">
+        <Label text="AVG ORDER VALUE" styleClass="sec-lbl"/>
+        <Label fx:id="ovAvgOrder" text="£0.00"
+               style="-fx-font-size:26px; -fx-font-weight:bold; -fx-text-fill:#111827;"/>
+      </VBox>
+
+      <VBox spacing="6">
+        <Label text="REFUND RATE" styleClass="sec-lbl"/>
+        <Label fx:id="ovRefundRate" text="0.0%"
+               style="-fx-font-size:20px; -fx-font-weight:bold; -fx-text-fill:#111827;"/>
+        <ProgressBar fx:id="refundProgressBar"
+                     prefWidth="Infinity" progress="0.0"/>
+      </VBox>
+
+      <HBox spacing="28">
+        <VBox spacing="3">
+          <Label text="ONLINE"  styleClass="sec-lbl"/>
+          <Label fx:id="ovCustomers" text="0 customers"
+                 style="-fx-font-size:12px; -fx-text-fill:#374151;"/>
+        </VBox>
+        <VBox spacing="3">
+          <Label text="OFFLINE" styleClass="sec-lbl"/>
+          <Label text="294 users"
+                 style="-fx-font-size:12px; -fx-text-fill:#374151;"/>
+        </VBox>
+      </HBox>
+    </VBox>
+
+  </HBox>
+
+</VBox>

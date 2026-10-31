@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="Finance.Finance.ExportController"
+      spacing="14">
+  <padding><Insets top="18" right="22" bottom="22" left="22"/></padding>
+
+  <!-- Header -->
+  <HBox alignment="CENTER_LEFT" spacing="12">
+    <ImageView fitWidth="28" fitHeight="28" preserveRatio="true" smooth="true">
+      <image><Image url="@logo.png"/></image>
+    </ImageView>
+    <VBox spacing="2" HBox.hgrow="ALWAYS">
+      <Label text="Export Reports"                                         styleClass="card-ttl"/>
+      <Label text="Generate and download financial reports as CSV or PDF"  styleClass="tb-sub"/>
+    </VBox>
+  </HBox>
+
+  <!-- Filter card — removed the duplicate "⬆ Export Reports" button from here;
+       that button was calling #exportReport before any preview/data was loaded -->
+  <VBox styleClass="filter-card" spacing="10">
+    <HBox alignment="CENTER_LEFT" spacing="12">
+      <Label text="▼  Filters" styleClass="filter-hdr-lbl" HBox.hgrow="ALWAYS"/>
+      <!-- Reset stays here; export only available via Download button below -->
+      <Button text="⟳  Reset" styleClass="btn-outline" onAction="#resetExport"/>
+    </HBox>
+
+    <HBox spacing="12" alignment="CENTER_LEFT">
+      <VBox spacing="3">
+        <Label text="Start Date"   styleClass="filter-col-lbl"/>
+        <DatePicker fx:id="exportDateFrom" styleClass="filter-dp" promptText="dd/mm/yyyy"/>
+      </VBox>
+      <VBox spacing="3">
+        <Label text="End Date"     styleClass="filter-col-lbl"/>
+        <DatePicker fx:id="exportDateTo"   styleClass="filter-dp" promptText="dd/mm/yyyy"/>
+      </VBox>
+      <VBox spacing="3">
+        <Label text="Customer"     styleClass="filter-col-lbl"/>
+        <ComboBox fx:id="exportCustomer" styleClass="filter-cb"
+                  promptText="All customers" prefWidth="126"/>
+      </VBox>
+      <VBox spacing="3">
+        <Label text="Category"     styleClass="filter-col-lbl"/>
+        <ComboBox fx:id="exportCategory" styleClass="filter-cb"
+                  promptText="All categories" prefWidth="126"/>
+      </VBox>
+      <VBox spacing="3">
+        <Label text="Order Status" styleClass="filter-col-lbl"/>
+        <ComboBox styleClass="filter-cb" promptText="All statuses" prefWidth="110"/>
+      </VBox>
+    </HBox>
+
+    <HBox spacing="14" alignment="CENTER_LEFT">
+      <Label text="Format:" styleClass="filter-col-lbl"/>
+      <RadioButton fx:id="radioCSV" text="CSV" selected="true"/>
+      <RadioButton fx:id="radioPDF" text="PDF"/>
+    </HBox>
+
+    <!-- Apply Filters populates the preview table first -->
+    <Button text="Apply Filters" styleClass="btn-apply-wide"
+            maxWidth="Infinity" onAction="#previewReport"/>
+    <Label fx:id="exportFilterError" text="" styleClass="filter-err"/>
+  </VBox>
+
+  <!-- Download card — only shown after preview is loaded -->
+  <VBox styleClass="white-card" alignment="CENTER" spacing="14">
+    <padding><Insets top="32" bottom="32"/></padding>
+
+    <HBox fx:id="progressRow" alignment="CENTER" spacing="12"
+          visible="false" managed="false">
+      <ProgressBar fx:id="exportProgress" prefWidth="300" progress="0"/>
+      <Label fx:id="exportStatusLabel" text="Preparing…" styleClass="tb-sub"/>
+    </HBox>
+
+    <!-- FIX: exportSuccessLabel starts empty — only set by controller after save -->
+    <Label fx:id="exportSuccessLabel" text="" styleClass="tb-sub"
+           wrapText="true" alignment="CENTER" maxWidth="420"/>
+
+    <Button fx:id="exportBtn" text="Download Report"
+            styleClass="btn-download" onAction="#exportReport"/>
+
+    <Label fx:id="exportFailLabel" text="" styleClass="error-label"/>
+  </VBox>
+
+  <!-- Preview table -->
+  <VBox styleClass="white-card" spacing="10" VBox.vgrow="ALWAYS">
+    <Label text="REPORT PREVIEW" styleClass="sec-lbl"/>
+    <TableView fx:id="previewTable" prefHeight="280" VBox.vgrow="ALWAYS">
+      <columns>
+        <TableColumn fx:id="colExpOrderId"  text="Order #"   prefWidth="66"/>
+        <TableColumn fx:id="colExpDate"     text="Date"      prefWidth="106"/>
+        <TableColumn fx:id="colExpCustomer" text="Customer"  prefWidth="130"/>
+        <TableColumn fx:id="colExpProduct"  text="Product"   prefWidth="148"/>
+        <TableColumn fx:id="colExpCategory" text="Category"  prefWidth="100"/>
+        <TableColumn fx:id="colExpQty"      text="Qty"       prefWidth="44"/>
+        <TableColumn fx:id="colExpRevenue"  text="Revenue £" prefWidth="90"/>
+        <TableColumn fx:id="colExpCost"     text="Cost £"    prefWidth="82"/>
+        <TableColumn fx:id="colExpProfit"   text="Profit £"  prefWidth="82"/>
+        <TableColumn fx:id="colExpStatus"   text="Status"    prefWidth="82"/>
+      </columns>
+    </TableView>
+    <Label fx:id="previewEmptyLabel"
+           text="Apply filters to preview the report."
+           styleClass="tb-sub"/>
+  </VBox>
+
+</VBox>
